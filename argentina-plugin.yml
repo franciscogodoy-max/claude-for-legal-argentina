@@ -1,0 +1,85 @@
+name: Plugin argentina-legal
+
+# Mantiene el plugin argentina-legal al dia en este fork:
+#   1. trae los cambios de Probanza-ar/claude-for-legal-argentina (que a su vez
+#      sincroniza con anthropics/claude-for-legal);
+#   2. regenera argentina-legal/ desde argentina/ con scripts/build_argentina_plugin.py;
+#   3. si algo cambio, commitea y pushea. Claude toma la nueva version con
+#      "Sincronizar automaticamente" en el marketplace.
+
+on:
+  schedule:
+    - cron: '30 6 * * *'   # todos los dias 06:30 UTC (03:30 Argentina)
+  push:
+    branches: [main]
+    paths:
+      - 'argentina/**'
+      - 'scripts/build_argentina_plugin.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: argentina-plugin
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Configurar git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Traer cambios de Probanza-ar
+        id: merge
+        if: github.repository != 'Probanza-ar/claude-for-legal-argentina'
+        run: |
+          git remote get-url probanza >/dev/null 2>&1 \
+            || git remote add probanza https://github.com/Probanza-ar/claude-for-legal-argentina.git
+          git fetch probanza main
+          if git merge probanza/main --no-edit; then
+            echo "conflict=false" >> "$GITHUB_OUTPUT"
+          else
+            git merge --abort || true
+            echo "::warning::Conflicto al mergear Probanza-ar/main. Se abre un issue."
+            echo "conflict=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Regenerar plugin
+        run: python3 scripts/build_argentina_plugin.py
+
+      - name: Commit y push
+        run: |
+          git add -A argentina-legal .claude-plugin/marketplace.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Regenerar plugin argentina-legal"
+          fi
+          git push origin HEAD:main
+
+      - name: Abrir issue ante conflicto
+        if: steps.merge.outputs.conflict == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const abiertos = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo,
+              state: 'open', labels: 'probanza-conflict',
+            });
+            if (abiertos.data.length === 0) {
+              await github.rest.issues.create({
+                owner: context.repo.owner, repo: context.repo.repo,
+                title: 'Conflicto al sincronizar con Probanza-ar',
+                labels: ['probanza-conflict'],
+                body: 'El merge automatico con Probanza-ar/claude-for-legal-argentina tuvo conflictos y se aborto. Tu main quedo intacto. Resolver con "Sync fork" en GitHub o con un merge manual.',
+              });
+            }
+            core.setFailed('Conflicto con Probanza-ar/main');
