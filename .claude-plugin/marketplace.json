@@ -1,6 +1,6 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "claude-for-legal",
+  "name": "claude-for-legal-argentina",
   "description": "Reference agents, skills, and data connectors for the legal workflows we see most — in-house commercial, privacy, product, corporate, employment, litigation, regulatory, AI governance, IP, and the learning side of the practice (law school clinics and students).",
   "owner": {
     "name": "Anthropic"
@@ -121,6 +121,15 @@
       "description": "CoCounsel Legal delivers comprehensive Westlaw Deep Research reports with inline, linked citations to Westlaw and Practical Law sources.",
       "author": {
         "name": "Thomson Reuters"
+      }
+    },
+    {
+      "name": "argentina-legal",
+      "displayName": "Argentina Legal",
+      "source": "./argentina-legal",
+      "description": "Capa argentina de claude-for-legal: perfiles de práctica por fuero (civil, comercial, concursos, societario, contratos, laboral, familia, penal, previsional, administrativo, tributario, consumidor, protección de datos y más), diagnóstico previo de escritos, cómputo de plazos procesales, bucle de fundamentación y modelos de escritos bajo derecho argentino.",
+      "author": {
+        "name": "Probanza-ar / comunidad claude-for-legal-argentina"
       }
     }
   ]

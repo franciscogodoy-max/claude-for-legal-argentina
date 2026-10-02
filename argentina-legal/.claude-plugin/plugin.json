@@ -1,0 +1,8 @@
+{
+  "name": "argentina-legal",
+  "version": "1.0.202610020028",
+  "description": "Capa argentina de claude-for-legal: perfiles de práctica por fuero (civil, comercial, concursos, societario, contratos, laboral, familia, penal, previsional, administrativo, tributario, consumidor, protección de datos y más), diagnóstico previo de escritos, cómputo de plazos procesales, bucle de fundamentación y modelos de escritos bajo derecho argentino.",
+  "author": {
+    "name": "Probanza-ar / comunidad claude-for-legal-argentina"
+  }
+}
