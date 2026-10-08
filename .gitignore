@@ -2,7 +2,9 @@
 *.skill
 /logs/
 /outputs/
-/.claude/
+/.claude/*
+!/.claude/settings.json
+!/.claude/hooks/
 __pycache__/
 *.pyc
 instaladores/_update.log
